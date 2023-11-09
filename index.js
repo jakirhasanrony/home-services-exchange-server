@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
+const cookieParser = require('cookie-parser');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const app = express();
@@ -10,11 +11,14 @@ const port = process.env.PORT || 5000;
 // middleware
 app.use(cors({
   origin: [
-    "http://localhost:5173"
+    "http://localhost:5173",
+    // "https://home-services-exchange.web.app",
+    // "https://home-services-exchange.firebaseapp.com",
   ],
   credentials: true
 }));
 app.use(express.json());
+app.use(cookieParser());
 
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.1ez7hhm.mongodb.net/?retryWrites=true&w=majority`;
@@ -36,6 +40,7 @@ async function run() {
 
 
     const serviceCollection = client.db('homeServicesExchange').collection('services');
+    const bookedCollection = client.db('homeServicesExchange').collection('bookings');
 
     // auth related api
     app.post('/jwt', async (req, res) => {
@@ -84,6 +89,17 @@ async function run() {
       const query = { _id: new ObjectId(id) }
       const result = await serviceCollection.findOne(query);
       res.send(result)
+
+    })
+
+
+
+    // bookings
+    app.post('/bookings', async (req, res) => {
+      const bookedService = req.body;
+      console.log(bookedService);
+      const result = await bookedCollection.insertOne(bookedService);
+      res.send(result);
 
     })
 
