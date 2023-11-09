@@ -114,6 +114,17 @@ async function run() {
     })
 
 
+    app.get('/other-bookings', async (req, res) => {
+      // console.log(req.query.service_provider_email);
+      let query = {};
+      if (req.query?.service_provider_email) {
+        query = { service_provider_email: req.query.service_provider_email }
+      }
+      const result = await bookedCollection.find(query).toArray();
+      res.send(result);
+    })
+
+
 
 
     // Send a ping to confirm a successful connection
