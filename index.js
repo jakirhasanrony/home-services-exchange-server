@@ -79,6 +79,48 @@ async function run() {
 
     })
 
+    app.delete('/services/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await serviceCollection.deleteOne(query);
+      res.send(result);
+
+
+    })
+
+    app.get('/added-services', async (req, res) => {
+      // console.log(req.query.service_provider_email);
+      let query = {};
+      if (req.query?.service_provider_email) {
+        query = { service_provider_email: req.query.service_provider_email }
+      }
+      const result = await serviceCollection.find(query).toArray();
+      res.send(result);
+    })
+
+    app.put('/services/:id', async (req, res) => {
+      const id = req.params.id;
+      const updatedService = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const service = {
+        $set: {
+          service_name: updatedService.service_name,
+          service_area: updatedService.service_area,
+          service_description: updatedService.service_description,
+          service_provider_img: updatedService.service_provider_img,
+          service_provider_email: updatedService.service_provider_email,
+          service_price: updatedService.service_price,
+          service_image: updatedService.service_image,
+          service_provider_name: updatedService.service_provider_name
+        }
+      }
+
+      const result = await serviceCollection.updateOne(filter, service, options);
+      res.send(result);
+    })
+
+
     app.get('/services', async (req, res) => {
       const cursor = serviceCollection.find();
       const result = await cursor.toArray();
